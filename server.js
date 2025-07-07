@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 async function connectToMongoDB() {
   try {
     mongoose.connect(
-      "mongodb+srv://anneclinebarger:eUqDuVLLH3eUjoGU@cluster0.al86ipn.mongodb.net/"
+      "mongodb+srv://anneclinebarger:eUqDuVLLH3eUjoGU@cluster0.al86ipn.mongodb.net/clt-bookstore-crawl"
     );
     console.log("Connected to MongoDB");
   } catch (err) {
@@ -22,6 +22,16 @@ app.use(
     extended: true,
   })
 );
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
 
 const mainRoutes = require("./routes/main");
 
