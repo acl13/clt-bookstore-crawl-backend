@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const passport = require("passport");
 
 async function connectToMongoDB() {
   try {
@@ -32,6 +33,8 @@ app.use((req, res, next) => {
   );
   next();
 });
+
+app.use(passport.initialize());
 
 const mainRoutes = require("./routes/main");
 

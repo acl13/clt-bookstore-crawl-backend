@@ -1,16 +1,114 @@
 const router = require("express").Router();
 const Bookstore = require("../models/bookstore");
-const bookstoreData = require("../../bookstores.json");
 const mongoose = require("mongoose");
 const axios = require("axios");
 require("dotenv").config();
+const passport = require("passport");
+const jwt = require("jwt-simple");
+const User = require("../models/user");
+
+const ExtractJwt = require("passport-jwt").ExtractJwt;
+const LocalStrategy = require("passport-local").Strategy;
+const JwtStrategy = require("passport-jwt").Strategy;
 
 mongoose.connect(
   "mongodb+srv://anneclinebarger:eUqDuVLLH3eUjoGU@cluster0.al86ipn.mongodb.net/clt-bookstore-crawl"
 );
 
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: "secret",
+};
+
+passport.use(
+  "jwt",
+  new JwtStrategy(jwtOptions, async (payload, done) => {
+    try {
+      const user = await User.findById(payload.sub);
+      if (!user) return done(null, false);
+      return done(null, user);
+    } catch (err) {
+      return done(err, false);
+    }
+  })
+);
+
+passport.use(
+  "login",
+  new LocalStrategy(
+    { usernameField: "email" },
+    async (email, password, done) => {
+      try {
+        const user = await User.findOne({ email });
+        if (!user || !user.validPassword(password)) {
+          return done(null, false, { message: "Invalid email or password" });
+        }
+        return done(null, user);
+      } catch (err) {
+        return done(err);
+      }
+    }
+  )
+);
+
+const tokenForUser = function (user) {
+  return jwt.encode(
+    {
+      sub: user._id.toString(),
+      iat: Math.round(Date.now() / 1000),
+      exp: Math.round(Date.now() / 1000 + 5 * 60 * 60), // 5 hours
+    },
+    jwtOptions.secretOrKey
+  );
+};
+
+const requireSignin = passport.authenticate("login", { session: false });
+router.post("/login", requireSignin, function (req, res) {
+  // This is where the login process will happen
+  res.json({
+    token: tokenForUser(req.user),
+    user: req.user,
+  });
+});
+
+router.post("/signup", async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res
+      .status(422)
+      .json({ error: "You must provide email and password" });
+  }
+
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(422).json({ error: "Email is in use" });
+    }
+
+    const user = new User({ email });
+    user.setPassword(password);
+    await user.save();
+
+    res.json({ token: tokenForUser(user) });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error creating account" });
+  }
+});
+
+const requireAuth = passport.authenticate("jwt", { session: false });
+
+router.get("/me", requireAuth, (req, res) => {
+  // req.user is populated by JwtStrategy
+  res.json({
+    id: req.user._id,
+    email: req.user.email,
+    // include other fields from your model if needed
+  });
+});
+
 router.get("/bookstores", (req, res) => {
-  // TODO: write logic to GET bookstore information
   Bookstore.find()
     .exec()
     .then((bookstores) => {
