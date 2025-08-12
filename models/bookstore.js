@@ -7,6 +7,8 @@ const BookstoreSchema = new Schema({
   county: String,
   url: String,
   place_id: String,
+  lat: Number,
+  long: Number,
 });
 
 module.exports = mongoose.model("Bookstore", BookstoreSchema);
