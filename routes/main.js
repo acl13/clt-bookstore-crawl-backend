@@ -62,13 +62,17 @@ const tokenForUser = function (user) {
   );
 };
 
-const requireSignin = passport.authenticate("login", { session: false });
-router.post("/login", requireSignin, function (req, res) {
-  // This is where the login process will happen
-  res.json({
-    token: tokenForUser(req.user),
-    user: req.user,
-  });
+router.post("/login", (req, res, next) => {
+  passport.authenticate("login", { session: false }, (err, user, info) => {
+    if (err) return next(err);
+    if (!user)
+      return res.status(401).json({ message: info?.message || "Login failed" });
+
+    res.json({
+      token: tokenForUser(user),
+      user,
+    });
+  })(req, res, next);
 });
 
 router.post("/signup", async (req, res) => {
