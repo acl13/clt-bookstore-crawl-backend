@@ -11,10 +11,6 @@ const ExtractJwt = require("passport-jwt").ExtractJwt;
 const LocalStrategy = require("passport-local").Strategy;
 const JwtStrategy = require("passport-jwt").Strategy;
 
-mongoose.connect(
-  "mongodb+srv://anneclinebarger:eUqDuVLLH3eUjoGU@cluster0.al86ipn.mongodb.net/clt-bookstore-crawl"
-);
-
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: "secret",
@@ -103,13 +99,57 @@ router.post("/signup", async (req, res) => {
 
 const requireAuth = passport.authenticate("jwt", { session: false });
 
-router.get("/me", requireAuth, (req, res) => {
-  // req.user is populated by JwtStrategy
-  res.json({
-    id: req.user._id,
-    email: req.user.email,
-    // include other fields from your model if needed
-  });
+router.get("/me", requireAuth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate(
+      "routes.bookstores"
+    ); // replaces IDs with Bookstore docs
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.json({
+      id: user._id,
+      email: user.email,
+      routes: user.routes,
+    });
+  } catch (err) {
+    console.error("Error fetching user:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+router.post("/me", requireAuth, async (req, res) => {
+  try {
+    const { selectedBookstoreIds } = req.body;
+
+    if (!selectedBookstoreIds || !Array.isArray(selectedBookstoreIds)) {
+      return res
+        .status(400)
+        .json({ error: "selectedBookstores must be an array" });
+    }
+
+    // Load fresh user document from MongoDB
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Add the route
+    user.routes.push({
+      bookstores: selectedBookstoreIds,
+      createdAt: new Date(),
+    });
+
+    await user.save();
+
+    res.json({
+      message: "Route saved successfully",
+      routes: user.routes,
+    });
+  } catch (err) {
+    console.error("Error saving route:", err);
+    res.status(500).json({ error: "Server error while saving route" });
+  }
 });
 
 router.get("/bookstores", (req, res) => {
