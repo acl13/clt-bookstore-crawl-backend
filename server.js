@@ -2,12 +2,12 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const passport = require("passport");
+require("dotenv").config();
 
+const mongoConnectionString = process.env.MONGO_URI;
 async function connectToMongoDB() {
   try {
-    mongoose.connect(
-      "mongodb+srv://anneclinebarger:eUqDuVLLH3eUjoGU@cluster0.al86ipn.mongodb.net/clt-bookstore-crawl"
-    );
+    mongoose.connect(mongoConnectionString);
     console.log("Connected to MongoDB");
   } catch (err) {
     console.error("Error connecting to MongoDB:", err);
