@@ -7,6 +7,12 @@ const UserSchema = new Schema({
   email: { type: String, unique: true, lowercase: true },
   hash: String,
   salt: String,
+  routes: [
+    {
+      bookstores: [{ type: Schema.Types.ObjectId, ref: "Bookstore" }],
+      createdAt: { type: Date, default: Date.now },
+    },
+  ],
 });
 
 UserSchema.methods.setPassword = function (password) {
