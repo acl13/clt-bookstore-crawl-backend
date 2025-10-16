@@ -159,7 +159,8 @@ router.get("/bookstores", (req, res) => {
       res.send(bookstores);
     })
     .catch((error) => {
-      return console.error(error);
+      console.error("Error fetching bookstores:", error);
+      res.status(500).json({ message: "Server error fetching bookstores" });
     });
 });
 
