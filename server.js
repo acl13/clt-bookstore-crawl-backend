@@ -27,7 +27,7 @@ app.use(
 
 const allowedOrigins = [
   "http://localhost:3000", // for local dev
-  "https://clt-bookstore-crawl-frontend-8n7uokdei-acl13s-projects.vercel.app/", // for production
+  "https://clt-bookstore-crawl-frontend-8n7uokdei-acl13s-projects.vercel.app", // for production
 ];
 
 app.use(
