@@ -1,4 +1,4 @@
-# 📚 Bookstore Crawl Optimizer — Backend
+# CLT Bookstore Crawl Optimizer — Backend
 
 This is the backend API for the **Bookstore Crawl Optimizer**, a full-stack application that helps users plan and optimize routes for a bookstore crawl event.
 
