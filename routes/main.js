@@ -13,7 +13,7 @@ const JwtStrategy = require("passport-jwt").Strategy;
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: "secret",
+  secretOrKey: process.env.JWT_SECRET,
 };
 
 passport.use(
