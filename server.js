@@ -22,11 +22,12 @@ app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
     extended: true,
-  })
+  }),
 );
 
 const allowedOrigins = [
-  "http://localhost:3000", // for local dev
+  "http://localhost:3000", // for local dev - vanilla React
+  "http://localhost:8081", // for local dev - React Native
   "https://clt-bookstore-crawl-frontend-web.vercel.app", // for production
 ];
 
@@ -42,7 +43,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-  })
+  }),
 );
 
 app.use((req, res, next) => {
@@ -50,7 +51,7 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
   res.header(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
   );
   next();
 });
