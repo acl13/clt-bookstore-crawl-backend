@@ -26,9 +26,10 @@ app.use(
 );
 
 const allowedOrigins = [
-  "http://localhost:3000", // for local dev - vanilla React
-  "http://localhost:8081", // for local dev - React Native
-  "https://clt-bookstore-crawl-frontend-web.vercel.app", // for production
+  "http://localhost:3000", // for local dev - crawl route optimizer
+  "http://localhost:8081", // for local dev - React Native county filter tool
+  "https://clt-bookstore-crawl-frontend-web.vercel.app", // for production - crawl route optimizer
+  "https://clt-bookstore-crawl-frontend.vercel.app", // for production - county filter tool
 ];
 
 app.use(
